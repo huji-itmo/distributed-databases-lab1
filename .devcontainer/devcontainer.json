@@ -1,0 +1,11 @@
+{
+  "name": "PostgreSQL Lab",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": "..",
+  },
+
+  "onCreateCommand": "echo 'Only runs on first create'",
+  "postCreateCommand": "bash .devcontainer/create_cluster.sh",
+  "remoteUser": "root"
+}
