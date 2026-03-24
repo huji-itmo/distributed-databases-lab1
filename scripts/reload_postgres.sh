@@ -2,4 +2,4 @@
 
 source .env
 
-pg_ctl start -D $CLUSTER_FOLDER
+pg_ctl reload -D $CLUSTER_FOLDER
