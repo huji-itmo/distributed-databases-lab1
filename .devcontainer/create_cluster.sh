@@ -16,6 +16,8 @@ pg_createcluster \
     -l $LOG_FILE \
     --locale ru_RU.CP1251 \
     --encoding=WIN1251 \
-    16 main --start
+    16 main 
+
+bash .devcontainer/postgres_config.sh
 
 # service postgresql start
