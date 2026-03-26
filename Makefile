@@ -1,15 +1,15 @@
 include .env
 
-DB_DSN ?= postgresql://${VM_USERNAME}@localhost:5432/${DBNAME}?sslmode=disable
+
 TPC_C_MIGRATIONS_DIR 	:= ./tpc-c/tpc-c-migrations
-GOOSE_TABLE    	:= goose_migrations
-GOOSE_DRIVER   	:= postgres
-TPC_C_GOOSE_ENV     	:= GOOSE_DRIVER=$(GOOSE_DRIVER) GOOSE_DBSTRING=$(DB_DSN) GOOSE_MIGRATION_DIR=$(TPC_C_MIGRATIONS_DIR)
+GOOSE_TABLE    			:= goose_migrations
+GOOSE_DRIVER   			:= postgres
+TPC_C_GOOSE_ENV			:= GOOSE_DRIVER=$(GOOSE_DRIVER) GOOSE_DBSTRING=${DB_DSN} GOOSE_MIGRATION_DIR=$(TPC_C_MIGRATIONS_DIR)
 
 
-.PHONY: is_ready forward
+.PHONY: is_ready forward create_cluster
 
-configure: create_cluster is_ready start apply_config
+configure: is_ready start apply_config
 
 create_cluster: destroy_cluster
 	bash scripts/create_cluster.sh
@@ -50,3 +50,7 @@ tpc-c-down:
 .PHONY: tpc-c-status
 tpc-c-status:
 	${TPC_C_GOOSE_ENV} goose -table $(GOOSE_TABLE) status
+
+.PHONY: tpc-c-seed
+tpc-c-seed: tpc-c-up
+	  .venv/bin/python seed_tpc_c.py
