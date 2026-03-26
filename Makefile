@@ -75,3 +75,4 @@ bench:
         -f "tpc-c/tpc-c-new-order.sql" \
         -c 4 -j 8 -T 60 \
 		-M extended -P 5 \
+		> res.txt
