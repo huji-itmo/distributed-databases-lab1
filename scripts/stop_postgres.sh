@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 source .env
 
-pg_ctl reload -D $CLUSTER_FOLDER
+pg_ctl stop -D $CLUSTER_FOLDER

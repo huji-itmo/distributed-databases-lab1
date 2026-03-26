@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-
 source .env
 
 set_conf() {

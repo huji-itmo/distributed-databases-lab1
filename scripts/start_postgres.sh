@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-
 source .env
 
-pg_ctl start -D $CLUSTER_FOLDER
+pg_ctl -D $CLUSTER_FOLDER start

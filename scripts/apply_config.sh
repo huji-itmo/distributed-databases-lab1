@@ -1,13 +1,14 @@
 #!/usr/bin/env bash
+source .env
 
 if ! bash ./is_ready.sh; then
     echo "db id down";
     exit 1;
 fi
 
-source scripts/set_param.sh
+source ./scripts/set_param.sh
 
-PARAMS_FILE="params.conf"
+PARAMS_FILE="./params.conf"
 
 # Check if params file exists
 if [[ ! -f "$PARAMS_FILE" ]]; then
