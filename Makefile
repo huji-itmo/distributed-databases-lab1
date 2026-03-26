@@ -1,8 +1,15 @@
 include .env
 
+DB_DSN ?= postgresql://${VM_USERNAME}@localhost:5432/${DBNAME}?sslmode=disable
+TPC_C_MIGRATIONS_DIR 	:= ./tpc-c/tpc-c-migrations
+GOOSE_TABLE    	:= goose_migrations
+GOOSE_DRIVER   	:= postgres
+TPC_C_GOOSE_ENV     	:= GOOSE_DRIVER=$(GOOSE_DRIVER) GOOSE_DBSTRING=$(DB_DSN) GOOSE_MIGRATION_DIR=$(TPC_C_MIGRATIONS_DIR)
+
+
 .PHONY: is_ready forward
 
-configure: create_cluster start apply_config
+configure: create_cluster is_ready start apply_config
 
 create_cluster: destroy_cluster
 	bash scripts/create_cluster.sh
@@ -30,10 +37,16 @@ forward:
 	ssh -L 5432:localhost:${PORT} -N helios_pg
 
 goose_init:
-	goose postgres ${LOCAL_CONNECTION_URL} -dir "tpc-c-migrations" create initial sql
+	${TPC_C_GOOSE_ENV} goose -table $(GOOSE_TABLE)} create initial sql
 
+.PHONY: tpc-c-up
 tpc-c-up:
-	goose postgres ${LOCAL_CONNECTION_URL} -dir "tpc-c-migrations" up
+	${TPC_C_GOOSE_ENV} goose -table $(GOOSE_TABLE) up
 
+.PHONY: tpc-c-down
 tpc-c-down:
-	goose postgres ${LOCAL_CONNECTION_URL} -dir "tpc-c-migrations" down
+	${TPC_C_GOOSE_ENV} goose -table $(GOOSE_TABLE) down
+
+.PHONY: tpc-c-status
+tpc-c-status:
+	${TPC_C_GOOSE_ENV} goose -table $(GOOSE_TABLE) status
