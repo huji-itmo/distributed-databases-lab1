@@ -40,4 +40,4 @@ while IFS='=' read -r key value; do
 
 done < "$PARAMS_FILE"
 
-bash ./scripts/reload_postgres.sh
+# bash ./scripts/reload_postgres.sh

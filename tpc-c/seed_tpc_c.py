@@ -118,24 +118,18 @@ class TPCCLoader:
         new_order_table,
         force_flush=False,
     ):
-        """Flush order-related batches in dependency order: orders -> order_lines -> new_order"""
-        # Always flush orders first to satisfy foreign key constraints
-        if force_flush or len(order_batch) >= BATCH_SIZE // 3:
-            if order_batch:
-                self._bulk_insert_core(order_table, order_batch)
-                order_batch.clear()
+        """Flush order-related batches: orders must be flushed first due to FK constraints"""
+        if order_batch:
+            self._bulk_insert_core(order_table, order_batch)
+            order_batch.clear()
 
-        # Then flush order_lines (now safe - parent orders are committed)
-        if force_flush or len(order_line_batch) >= BATCH_SIZE * 5:
-            if order_line_batch:
-                self._bulk_insert_core(order_line_table, order_line_batch)
-                order_line_batch.clear()
+        if order_line_batch:
+            self._bulk_insert_core(order_line_table, order_line_batch)
+            order_line_batch.clear()
 
-        # Finally flush new_order (depends on orders)
-        if force_flush or len(new_order_batch) >= BATCH_SIZE // 3:
-            if new_order_batch:
-                self._bulk_insert_core(new_order_table, new_order_batch)
-                new_order_batch.clear()
+        if new_order_batch:
+            self._bulk_insert_core(new_order_table, new_order_batch)
+            new_order_batch.clear()
 
         return order_batch, order_line_batch, new_order_batch
 
@@ -404,7 +398,6 @@ class TPCCLoader:
                         {"no_o_id": o_id, "no_d_id": d_id, "no_w_id": w_id}
                     )
 
-                # FIXED: Flush in dependency order to satisfy foreign keys
                 order_batch, order_line_batch, new_order_batch = (
                     self._flush_order_batches(
                         order_batch,

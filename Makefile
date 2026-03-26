@@ -6,10 +6,9 @@ GOOSE_TABLE    			:= goose_migrations
 GOOSE_DRIVER   			:= postgres
 TPC_C_GOOSE_ENV			:= GOOSE_DRIVER=$(GOOSE_DRIVER) GOOSE_DBSTRING=${DB_DSN} GOOSE_MIGRATION_DIR=$(TPC_C_MIGRATIONS_DIR)
 
-
 .PHONY: is_ready forward create_cluster
 
-configure: is_ready start apply_config
+configure: is_ready apply_config
 
 create_cluster: destroy_cluster
 	bash scripts/create_cluster.sh
@@ -53,4 +52,26 @@ tpc-c-status:
 
 .PHONY: tpc-c-seed
 tpc-c-seed: tpc-c-up
-	  .venv/bin/python seed_tpc_c.py
+	  .venv/bin/python tpc-c/seed_tpc_c.py
+
+.PHONY: clean-db
+clean-db:
+	  .venv/bin/python tpc-c/delete_all.py
+
+.PHONY: disable-sync
+disable-sync:
+	bash scripts/disable_sync.sh
+
+.PHONY: enable-sync
+enable-sync:
+		bash scripts/enable_sync.sh
+
+.PHONY: bench
+bench:
+	pgbench -h localhost -U postgres4 -d postgres \
+		-p 9213 \
+		-l \
+		-n \
+        -f "tpc-c/tpc-c-new-order.sql" \
+        -c 25 -j 4 -T 60 \
+		-M extended -r -P 5 \
