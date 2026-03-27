@@ -68,11 +68,11 @@ enable-sync:
 
 .PHONY: bench
 bench:
-	pgbench -h localhost -U postgres4 -d postgres \
+	pgbench -h 127.0.0.1 -U postgres4 -d postgres \
 		-p 9213 \
 		-l \
 		-n \
         -f "tpc-c/tpc-c-new-order.sql" \
         -c 4 -j 8 -T 60 \
-		-M extended -P 5 \
+		-M prepared -P 5 \
 		> res.txt
